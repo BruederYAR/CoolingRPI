@@ -1,0 +1,12 @@
+version: '3.3'
+
+services:
+  colling-rpi:
+    restart: always
+    build: ./
+    command: /usr/local/bin/app
+    devices:
+      - /dev/gpiomem
+      - /dev/mem
+    volumes:
+      - /sys/class/thermal/thermal_zone0:/usr/local/bin/thermal:ro

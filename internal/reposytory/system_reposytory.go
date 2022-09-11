@@ -3,7 +3,6 @@ package reposytory
 import (
 	"raspberrypi_colling/pkg/input"
 	"strconv"
-	"strings"
 )
 
 type SystemReposytory struct {
@@ -18,16 +17,20 @@ func NewSystemReposytory(config input.Config) *SystemReposytory {
 }
 
 func (systemReposytory *SystemReposytory) GetCurrentTemperature() (float32, error) {
-	date, err := input.ReadFile("/sys/class/thermal/thermal_zone0/temp")
+	date, err := input.ReadFile(systemReposytory.Config.TemperaturePath)
 	if err != nil {
 		return 0, err
 	}
-	
-	date = strings.Replace(date, " ", "\n", -1)
+
+	sl := len(date)
+	if sl > 0 {
+		date = date[:sl-1]
+	}
+
 	result, err := strconv.Atoi(date)
 	if err != nil {
 		return 0, err
 	}
 
-	return float32(result/1000), nil
+	return float32(result / 1000), nil
 }

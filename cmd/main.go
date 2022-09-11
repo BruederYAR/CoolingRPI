@@ -19,6 +19,7 @@ func main() {
 			Pin:            21,
 			Delay:          1,
 			MaxTemperature: 55,
+			TemperaturePath: "/usr/local/bin/thermal/temp",
 		}
 	}
 
@@ -31,12 +32,12 @@ func main() {
 
 func control(config *input.Config, system *service.SystemService) {
 	if err := rpio.Open(); err != nil {
-		fmt.Println(err)
+		fmt.Println("[ERR] " + err.Error())
 		os.Exit(1)
 	}
 	defer rpio.Close()
 
-	pin := rpio.Pin(10)
+	pin := rpio.Pin(config.Pin)
 	pin.Output()
 	pin.Low()
 	pinState := false
@@ -44,6 +45,7 @@ func control(config *input.Config, system *service.SystemService) {
 	for true {
 		temperature, err := system.GetCurrentTemperature()
 		if err != nil {
+			fmt.Println("[ERR] " + err.Error())
 			pin.High()
 			time.Sleep(time.Second * time.Duration(config.Delay))
 			continue
@@ -58,5 +60,7 @@ func control(config *input.Config, system *service.SystemService) {
 				pin.Low()
 			}
 		}
+
+		time.Sleep(time.Second * time.Duration(config.Delay))
 	}
 }
